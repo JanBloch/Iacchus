@@ -9,7 +9,9 @@ public class Gate{
 		this.release = release;
 		this.min = min;
 	}
-	public double[] getValues(double[] values, double rate){
+
+
+	public int[] getValues(int[] values, double rate){
 		double[] levels = new double[values.length];
 		levels[0] = values[0];
 		for(int i=1; i<values.length; i++){
