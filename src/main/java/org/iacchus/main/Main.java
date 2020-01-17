@@ -1,5 +1,7 @@
 package org.iacchus.main;
 
+import com.github.matthewbeckler.heatmap.Gradient;
+import com.github.matthewbeckler.heatmap.HeatMap;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
@@ -7,6 +9,7 @@ import org.apache.commons.math3.transform.TransformType;
 import org.iacchus.audio.Processor;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,7 +17,7 @@ import java.time.LocalDateTime;
 
 
 public class Main {
-    public static int maxFreqPower = 14;
+    public static int maxFreqPower = 13;
     public static int maxFreq = (int)Math.pow(2, maxFreqPower);
     public static void main(String[] args) {
 
@@ -29,22 +32,23 @@ public class Main {
             }*/
             int length;
             int height = 0;
-            for(int j=4; j<audio.length; j=(j>maxFreq*2)?j+maxFreq/200:j*2) {
+            for(int j=4; j<audio.length; j=(j>maxFreq*2)?j+maxFreq/50:j*2) {
              height++;
             }
-            int[][] outp = new int[height][maxFreq];
+            double[][] outp = new double[height][maxFreq];
 
 
             int counter = 0;
-            for(int j=4; j<audio.length; j=(j>maxFreq*2)?j+maxFreq/200:j*2) {
+            for(int j=4; j<audio.length; j=(j>maxFreq*2)?j+maxFreq/50:j*2) {
 
                 if(j>maxFreq*2){
                     length = maxFreq*2;
                 }else{
                     length = j;
                 }
-                int[] out = pad(Processor.realFFT(part(audio,j-length, j)), maxFreq);
-                outp[counter] = out;
+                double[] out = Processor.realFFT(part(audio,j-length, j));
+                double[] out_ = pad(out, maxFreq);
+                outp[counter] = out_;
                 counter++;
                 /*for(int i=0; i<out.length-1; i++){
 
@@ -55,11 +59,12 @@ public class Main {
 
             }
             audio = null;
+            System.gc();
             int h = height;
-            Thread t = new Thread(){
+             Thread t = new Thread(){
               @Override
               public void run(){
-                  BufferedImage outImage = new BufferedImage(maxFreq, h,BufferedImage.TYPE_INT_RGB);
+                  //BufferedImage outImage = new BufferedImage(maxFreq, h,BufferedImage.TYPE_INT_RGB);
                   try {
                       double max = 0;
                       for(int i=0; i<outp.length; i++){
@@ -67,6 +72,7 @@ public class Main {
                               if(outp[i][j]>=max) max=outp[i][j];
                           }
                       }
+                      /*
                       for (int i = 0; i < outp.length; i++) {
                           for (int j = 0; j < outp[i].length; j++) {
                               try {
@@ -79,7 +85,18 @@ public class Main {
 
                           }
                       }
-                      ImageIO.write(outImage, "jpg", new File("test.jpg"));
+                      ImageIO.write(outImage, "png", new File("test.png"));*/
+
+
+                    /*HeatMap panel = new HeatMap(outp, true, Gradient.GRADIENT_BLUE_TO_RED);
+                    Color[] gradientColors = new Color[]{Color.blue,Color.green,Color.yellow};
+                    Color[] customGradient = Gradient.createMultiGradient(gradientColors, (int)max);
+                    panel.updateGradient(customGradient);
+                    JFrame frame = new JFrame();
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.setSize(500, 500);
+                    frame.setVisible(true);
+                    frame.add(panel);*/
                   }catch(Exception ex){
 
                   }
@@ -92,17 +109,17 @@ public class Main {
     }
 
 
-    private static int[] pad(double[] arr, int length){
-        if(arr.length>length){
-            int[] out = new int[arr.length];
+    private static double[] pad(double[] arr, int length){
+        if(arr.length>=length){
+            double[] out = new double[arr.length];
             for(int i=0; i<arr.length; i++){
-                out[i] = (int)arr[i];
+                out[i] = arr[i];
             }
             return out;
         }else{
-            int[] out = new int[length];
+            double[] out = new double[length];
             for(int i=0; i<arr.length; i++){
-                out[i] = (int)arr[i];
+                out[i] = arr[i];
             }
             for(int i=arr.length-1;i<length;i++){
                 out[i] = 0;
