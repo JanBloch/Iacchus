@@ -17,15 +17,20 @@ public class SpectrumFile {
     }
 
     public int[] getFrequencies(int time){
-        int startIndex = (getRowLength()*4)*time+HEADER_LENGTH;
-        int endIndex = (getRowLength()*4)*(time+1)+HEADER_LENGTH-1;
-        int[] out = new int[endIndex-startIndex];
-        for(int i=startIndex;i<endIndex;i++){
-            out[i-startIndex] = bytes[i];
+        int[] out = new int[getRowLength()];
+        for(int i=0; i<out.length; i++){
+            out[i] =getFrequency(time, i);
         }
         return out;
     }
-    
+    public int getFrequency(int time, int freqIndex){
+        int index = (getRowLength()*4)*time+HEADER_LENGTH+freqIndex;
+        String binaryString = "";
+        for(int i=index; i<index+4; i++){
+            binaryString = Processor.byteToString(bytes[i]) + binaryString;
+        }
+        return Integer.parseInt(binaryString, 2);
+    }
     public int getRowLength(){
         String binaryString = "";
         for(int i=4; i<8; i++){
