@@ -9,11 +9,18 @@ import java.nio.file.Files;
 public class SpectrumFile {
     public static final int HEADER_LENGTH = 7;
     byte[] bytes;
+    String path;
     public SpectrumFile(File f) throws IOException {
         bytes = Files.readAllBytes(f.toPath());
+        path = f.toString();
     }
     public SpectrumFile(String path) throws IOException {
         bytes = Files.readAllBytes(new File(path).toPath());
+        this.path = path;
+    }
+
+    public void save(){
+        //ToDo: Method to save SpectrumFile
     }
 
     public int[] getFrequencies(int time){
