@@ -7,6 +7,7 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 import org.iacchus.audio.Processor;
+import org.iacchus.io.SpectrumFile;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -25,7 +26,7 @@ public class Main {
         try {
 
 
-            double[] audio = p.getAudio("C:/users/bloch/desktop/test.wav");
+            double[] audio = p.getAudio("C:/users/janbl/desktop/Audio Files/Pads.wav");
             /*double[] audio = new double[maxFreq*100];
             for(int i=0; i<audio.length; i++){
                 audio[i] = Math.sin(i);
@@ -72,6 +73,14 @@ public class Main {
                               if(outp[i][j]>=max) max=outp[i][j];
                           }
                       }
+                      SpectrumFile file = SpectrumFile.create("test.spectrum", outp[0].length, outp.length);
+                      file.setMaxValue((int)max);
+                      for(int i=0; i<outp.length; i++){
+                          for(int j=0; j<outp[i].length; j++){
+                              file.setFrequency(i, j, (int)outp[i][j]);
+                          }
+                      }
+                      file.save();
                       /*
                       for (int i = 0; i < outp.length; i++) {
                           for (int j = 0; j < outp[i].length; j++) {
@@ -85,6 +94,7 @@ public class Main {
 
                           }
                       }
+
                       ImageIO.write(outImage, "png", new File("test.png"));*/
 
 
@@ -98,7 +108,7 @@ public class Main {
                     frame.setVisible(true);
                     frame.add(panel);*/
                   }catch(Exception ex){
-
+                        ex.printStackTrace();
                   }
               }
             };
