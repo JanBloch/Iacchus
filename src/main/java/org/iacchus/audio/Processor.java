@@ -19,19 +19,7 @@ import java.nio.file.Path;
 
 
 public class Processor {
-    public static String status = "";
-    static Thread statusOutput = new Thread(){
-        String lastStatus = "";
-      @Override
-      public void run(){
-          while(true) {
-              if (lastStatus != status) {
-                  System.out.println(status);
-                  lastStatus = status;
-              }
-          }
-      }
-    };
+    static String lastStatus = "";
     public double[] getAudio(String fileName) throws IOException {
         byte[] bytes = Files.readAllBytes(new File(fileName).toPath());
         int bitsPerSample = ((bytes[33] & 0xff) << 8) | (bytes[34] & 0xff);
@@ -91,14 +79,23 @@ public class Processor {
         }
         return out;
     }
-    public static void startStatusOutput(){
-        statusOutput.start();
+
+    public static void setStatus(String status){
+        if(!status.equals(lastStatus)){
+            System.out.print(status + "\r");
+            System.out.flush();
+            lastStatus = status;
+        }
     }
-    public static void stopStatusOutput(){
-        statusOutput.stop();
+    public static void newStatus(){
+        System.out.println();
     }
-    public static void setStatus(String _status){
-        status = _status;
+    public static String repeat(char chr, int amount){
+        String out = "";
+        for(int i=0; i<amount; i++){
+            out += chr;
+        }
+        return out;
     }
     public static void writeSpectrumFile(double[][] array){
         int h = array.length;
@@ -106,6 +103,7 @@ public class Processor {
             @Override
             public void run(){
                 try {
+                    newStatus();
                     double max = Processor.max(array);
                     SpectrumFile file = SpectrumFile.create("test.spectrum", array[0].length, array.length);
                     file.setMaxValue((int)max);
@@ -113,7 +111,12 @@ public class Processor {
                         for(int j=0; j<array[i].length; j++){
                             file.setFrequency(i, j, (int)array[i][j]);
                         }
+                        int amount = (int)Math.round((double)i/(double)array.length*100);
+                        Processor.setStatus("Preparing to save\t" + repeat('|', amount) + repeat('.', 100-amount) +"\t" + amount + "%");
                     }
+                    Processor.newStatus();
+                    Processor.setStatus("Saving...");
+                    Processor.newStatus();
                     file.save();
                 }catch(Exception ex){
                     ex.printStackTrace();

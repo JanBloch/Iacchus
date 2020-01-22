@@ -23,7 +23,6 @@ public class Main {
     public static void main(String[] args) {
 
         Processor p = new Processor();
-        Processor.startStatusOutput();
         try {
             double[] audio = p.getAudio("C:/users/bloch/desktop/test.wav");
             int length;
@@ -44,7 +43,8 @@ public class Main {
                 double[] out_ = Processor.pad(out, maxFreq);
                 outp[counter] = out_;
                 counter++;
-                Processor.setStatus("Creating spectrum: " + (int)((double)(j/audio.length)*100) + "%");
+                int amount = (int)Math.round((double)j/(double)audio.length*100);
+                Processor.setStatus("Creating spectrum " + Processor.repeat('|', amount)+Processor.repeat('.', 100-amount) + "\t" + amount + "%");
             }
             audio = null;
             System.gc();
@@ -52,7 +52,6 @@ public class Main {
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        Processor.stopStatusOutput();
 
     }
 
