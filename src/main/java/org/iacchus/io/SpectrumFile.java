@@ -22,7 +22,8 @@ public class SpectrumFile {
     }
 
     public static SpectrumFile create(String fileName, int rowLength, int timeCount) throws IOException {
-        Files.createFile(new File(fileName).toPath() );
+        if(!Files.exists(new File(fileName).toPath())){
+            Files.createFile(new File(fileName).toPath() );}
         SpectrumFile f = new SpectrumFile(fileName);
         f.bytes = new byte[HEADER_LENGTH+rowLength*4*timeCount];
         return f;

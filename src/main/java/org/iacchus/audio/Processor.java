@@ -19,6 +19,19 @@ import java.nio.file.Path;
 
 
 public class Processor {
+    public static String status = "";
+    static Thread statusOutput = new Thread(){
+        String lastStatus = "";
+      @Override
+      public void run(){
+          while(true) {
+              if (lastStatus != status) {
+                  System.out.println(status);
+                  lastStatus = status;
+              }
+          }
+      }
+    };
     public double[] getAudio(String fileName) throws IOException {
         byte[] bytes = Files.readAllBytes(new File(fileName).toPath());
         int bitsPerSample = ((bytes[33] & 0xff) << 8) | (bytes[34] & 0xff);
@@ -77,6 +90,15 @@ public class Processor {
             out[i-start] = arr[i];
         }
         return out;
+    }
+    public static void startStatusOutput(){
+        statusOutput.start();
+    }
+    public static void stopStatusOutput(){
+        statusOutput.stop();
+    }
+    public static void setStatus(String _status){
+        status = _status;
     }
     public static void writeSpectrumFile(double[][] array){
         int h = array.length;
