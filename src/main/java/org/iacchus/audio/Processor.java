@@ -4,10 +4,13 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
+import org.iacchus.io.SpectrumFile;
 
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.Clip;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +34,80 @@ public class Processor {
 
         }
         return audio;
+    }
+
+    public BufferedImage arrayToImage(double[][] array){
+        double max = max(array);
+        BufferedImage img = new BufferedImage(array[0].length,array.length,BufferedImage.TYPE_INT_RGB);
+          for (int i = 0; i < array.length; i++) {
+              for (int j = 0; j < array[i].length; j++) {
+                  try {
+                      int color = (int) (array[i][j] / max * 255);
+                      img.setRGB(j, i, (int) Math.pow(color, 3));
+                  } catch (Exception ex) {
+                      System.out.println(array[i][j]);
+                  }
+
+
+              }
+          }
+    return img;
+    }
+    public static double[] pad(double[] arr, int length){
+        if(arr.length>=length){
+            double[] out = new double[arr.length];
+            for(int i=0; i<arr.length; i++){
+                out[i] = arr[i];
+            }
+            return out;
+        }else{
+            double[] out = new double[length];
+            for(int i=0; i<arr.length; i++){
+                out[i] = arr[i];
+            }
+            for(int i=arr.length-1;i<length;i++){
+                out[i] = 0;
+            }
+            return out;
+        }
+    }
+    public static double[] part(double[] arr, int start, int end) throws Exception {
+        double[] out = new double[end-start];
+        for(int i=start; i<end; i++){
+            out[i-start] = arr[i];
+        }
+        return out;
+    }
+    public static void writeSpectrumFile(double[][] array){
+        int h = array.length;
+        Thread t = new Thread(){
+            @Override
+            public void run(){
+                try {
+                    double max = Processor.max(array);
+                    SpectrumFile file = SpectrumFile.create("test.spectrum", array[0].length, array.length);
+                    file.setMaxValue((int)max);
+                    for(int i=0; i<array.length; i++){
+                        for(int j=0; j<array[i].length; j++){
+                            file.setFrequency(i, j, (int)array[i][j]);
+                        }
+                    }
+                    file.save();
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        };
+        t.start();
+    }
+    public static double max(double[][] array) {
+        double max = 0;
+        for(int i=0; i<array.length; i++){
+            for(int j=0; j<array[i].length; j++){
+                if(array[i][j]>=max) max=array[i][j];
+            }
+        }
+        return max;
     }
 
     public static String byteToString(byte b) {

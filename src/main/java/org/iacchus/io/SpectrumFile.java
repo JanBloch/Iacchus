@@ -3,11 +3,9 @@ package org.iacchus.io;
 import org.iacchus.audio.Processor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 
 public class SpectrumFile {
