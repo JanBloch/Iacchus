@@ -6,10 +6,7 @@ public class MakeSpectrum {
     public static int maxFreqPower = 13;
     public static int maxFreq = (int)Math.pow(2, maxFreqPower);
     public static void main(String[] args) {
-        for(int i=0; i<args.length; i++){
-            System.out.println(args[i]);
-        }
-        //if(args.length>0){return;}
+
         String outFile;
         String inFile;
         Processor p = new Processor();
