@@ -6,16 +6,10 @@ import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 import org.iacchus.io.SpectrumFile;
 
-import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.Clip;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 
 public class Processor {
@@ -97,7 +91,7 @@ public class Processor {
         }
         return out;
     }
-    public static void writeSpectrumFile(double[][] array){
+    public static void writeSpectrumFile(double[][] array, String fileName){
         int h = array.length;
         Thread t = new Thread(){
             @Override
@@ -105,7 +99,16 @@ public class Processor {
                 try {
                     newStatus();
                     double max = Processor.max(array);
-                    SpectrumFile file = SpectrumFile.create("test.spectrum", array[0].length, array.length);
+                    SpectrumFile file;
+                    if(!Files.exists(new File(fileName).toPath())) {
+                         file = SpectrumFile.create(fileName, array[0].length, array.length);
+                    }else{
+                        int i=1;
+                        while(Files.exists(new File(fileName + i).toPath())){
+                            i++;
+                        }
+                        file = SpectrumFile.create(fileName.substring(0, fileName.lastIndexOf(".spectrum")!=-1?fileName.lastIndexOf(".spectrum"):fileName.length()) + i + ".spectrum", array[0].length, array.length);
+                    }
                     file.setMaxValue((int)max);
                     for(int i=0; i<array.length; i++){
                         for(int j=0; j<array[i].length; j++){
